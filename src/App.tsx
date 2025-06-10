@@ -48,11 +48,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (phaserGameRef.current) {
-      const scene = phaserGameRef.current.scene.getScene('DungeonScene') as DungeonScene;
-      if (scene) {
-        scene.loadDungeon(dungeon.grid, setGameStats);
-      }
+    if (!phaserGameRef.current) return;
+
+    const scene = phaserGameRef.current.scene.getScene('DungeonScene') as DungeonScene | undefined;
+    if (!scene) return;
+
+    const load = () => scene.loadDungeon(dungeon.grid, setGameStats);
+
+    if (scene.scene.isActive()) {
+      load();
+    } else {
+      scene.events.once('create', load);
     }
   }, [currentDungeon, dungeon.grid]);
 
